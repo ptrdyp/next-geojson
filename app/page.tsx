@@ -182,6 +182,33 @@ export default function Home() {
             />
           </Source>
         )}
+
+        {/* Jika salah satu pulau dipilih */}
+        {mapLoaded && localImageRef.current && selectedIsland && (
+          <Source type="geojson" data={filteredProvinces}>
+            <Layer
+              id="provinces-layer"
+              type="fill"
+              paint={{
+                "fill-color": [
+                  "case",
+                  ["==", ["id"], hoveredPolygon ?? null],
+                  "#ffa200",
+                  "#00ff00",
+                ],
+                "fill-opacity": 0.2,
+              }}
+            />
+            <Layer
+              id="provinces-border"
+              type="line"
+              paint={{
+                "line-color": "#ffffff",
+                "line-width": 1,
+              }}
+            />
+          </Source>
+        )}
       </Map>
 
       <HomeOverlay />
