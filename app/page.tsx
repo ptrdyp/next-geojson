@@ -76,11 +76,16 @@ export default function Home() {
           zoom: 3.8
         }}
         style={{width: 900, height: 400}}
-        mapStyle="mapbox://styles/mapbox/streets-v9"
+        mapStyle="mapbox://styles/mapbox/satellite-v9"
         interactiveLayerIds={['provinces-layer']}
         onClick={handleClick}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
+        scrollZoom={false}  
+        doubleClickZoom={false}  
+        touchZoomRotate={false}  
+        dragRotate={false}  
+        dragPan={false}
       >
         {geoJsonData && (
           <Source type='geojson' data={geoJsonData}>
@@ -95,7 +100,7 @@ export default function Home() {
                 "fill-opacity": 0.2
               }}
             />
-            <Layer
+            {/* <Layer
               id="provinces_line"
               type="line"
               paint={{
@@ -104,7 +109,7 @@ export default function Home() {
                   "line-opacity": 1
               }}
               layout={{ visibility: 'visible' }}
-            />
+            /> */}
           </Source>
         )}
       </Map>
