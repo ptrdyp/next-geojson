@@ -1,0 +1,3 @@
+utils/island.ts filter=lfs diff=lfs merge=lfs -text
+utils/provinces.ts filter=lfs diff=lfs merge=lfs -text
+src/island/papua-barat.ts filter=lfs diff=lfs merge=lfs -text

@@ -1,12 +1,16 @@
 "use client";
 
 import HomeOverlay from "@/components/fragments/HomeOverlay";
+import { island } from "@/src/island";
 import bbox from "@turf/bbox";
 import React, { useEffect, useRef, useState } from "react";
 import Map, { Layer, MapRef, Source, MapMouseEvent } from "react-map-gl/mapbox";
+import { FeatureCollection, Geometry } from "geojson";
+import { provinces } from "@/src/provinces";
 
 export default function Home() {
-  const [geoJsonData, setGeoJsonData] = useState(null);
+  const [geoJsonData, setGeoJsonData] =
+    useState<FeatureCollection<Geometry>>(island);
   const [mapLoaded, setMapLoaded] = useState(false);
   const boundsPadding = 0.5;
   const minZoom = 3.5;
@@ -22,29 +26,17 @@ export default function Home() {
     [imageBounds[0][0] + boundsPadding, imageBounds[1][1] + boundsPadding],
     [imageBounds[1][0] - boundsPadding, imageBounds[0][1] - boundsPadding],
   ]);
+  const [selectedIsland, setSelectedIsland] = useState<string | null>(null);
 
-  const requestGeoJSON = async () => {
-    try {
-      const response = await fetch("/data/provinces.geojson");
-      if (!response.ok) {
-        throw new Error("Gagal mengambil data GeoJSON");
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error fetching GeoJSON:", error);
-      return null;
-    }
+  const filteredProvinces: FeatureCollection<Geometry> = {
+    type: "FeatureCollection",
+    features: provinces.features.filter(
+      (province: any) => province?.properties?.island_id === selectedIsland
+    ),
   };
 
   // fetch data and image
   useEffect(() => {
-    const fetchData = async () => {
-      const data = await requestGeoJSON();
-      setGeoJsonData(data);
-    };
-    fetchData();
-
     // Preload background image
     const img = new window.Image();
     img.onload = () => {
@@ -59,6 +51,9 @@ export default function Home() {
 
     if (feature) {
       const [minLng, minLat, maxLng, maxLat] = bbox(feature);
+
+      setSelectedIsland(feature?.properties?.id);
+      setGeoJsonData(null as any);
 
       // Batasi zoom dalam area bounds gambar
       const boundedMinLng = Math.max(minLng, mapBounds[0][0]);
@@ -116,7 +111,7 @@ export default function Home() {
         }}
         style={{ width: "100%", height: "100%" }}
         mapStyle="mapbox://styles/mapbox/empty-v9"
-        interactiveLayerIds={["provinces-layer"]}
+        interactiveLayerIds={["island-layer", "provinces-layer"]}
         onClick={handleClick}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
@@ -163,7 +158,7 @@ export default function Home() {
         {mapLoaded && localImageRef.current && geoJsonData && (
           <Source type="geojson" data={geoJsonData}>
             <Layer
-              id="provinces-layer"
+              id="island-layer"
               type="fill"
               paint={{
                 "fill-opacity": [
@@ -176,7 +171,7 @@ export default function Home() {
               }}
             />
             <Layer
-              id="provinces_line"
+              id="island_line"
               type="line"
               paint={{
                 "line-color": "#ffffff",
